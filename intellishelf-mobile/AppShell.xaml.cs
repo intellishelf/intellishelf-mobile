@@ -1,4 +1,4 @@
-﻿namespace intellishelf_mobile;
+﻿namespace Intellishelf;
 
 public partial class AppShell : Shell
 {

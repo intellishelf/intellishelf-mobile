@@ -1,7 +1,7 @@
 ﻿using ObjCRuntime;
 using UIKit;
 
-namespace intellishelf_mobile;
+namespace Intellishelf;
 
 public class Program
 {

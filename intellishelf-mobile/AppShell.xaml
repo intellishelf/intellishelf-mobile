@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Shell
-    x:Class="intellishelf_mobile.AppShell"
+    x:Class="Intellishelf.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:intellishelf_mobile"
+    xmlns:local="clr-namespace:Intellishelf"
     Shell.FlyoutBehavior="Disabled"
-    Title="intellishelf_mobile">
+    Title="Intellishelf">
 
     <ShellContent
         Title="Home"

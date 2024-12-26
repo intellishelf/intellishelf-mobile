@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace intellishelf_mobile;
+namespace Intellishelf;
 
 public static class MauiProgram
 {

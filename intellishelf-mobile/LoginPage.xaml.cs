@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 
-namespace intellishelf_mobile
+namespace Intellishelf
 {
     public partial class LoginPage : ContentPage
     {

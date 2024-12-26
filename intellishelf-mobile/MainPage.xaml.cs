@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 
-namespace intellishelf_mobile;
+namespace Intellishelf;
 
 public partial class MainPage : ContentPage
 {

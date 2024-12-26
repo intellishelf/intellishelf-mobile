@@ -1,4 +1,4 @@
-﻿namespace intellishelf_mobile;
+﻿namespace Intellishelf;
 
 public partial class App : Application
 {

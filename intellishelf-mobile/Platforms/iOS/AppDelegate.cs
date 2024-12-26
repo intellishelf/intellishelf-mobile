@@ -1,6 +1,6 @@
 ﻿using Foundation;
 
-namespace intellishelf_mobile;
+namespace Intellishelf;
 
 [Register("AppDelegate")]
 public class AppDelegate : MauiUIApplicationDelegate
