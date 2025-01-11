@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Intellishelf.Clients;
+using Intellishelf.Pages;
+using Microsoft.Extensions.Logging;
 
 namespace Intellishelf;
 
@@ -11,9 +13,10 @@ public static class MauiProgram
             .UseMauiApp<App>()
             .ConfigureFonts(fonts =>
             {
-                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
+
+        builder.Services.AddSingleton<IIntellishelfApiClient, IntellishelfApiClient>();
 
 #if DEBUG
         builder.Logging.AddDebug();

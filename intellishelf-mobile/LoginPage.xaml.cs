@@ -1,24 +1,22 @@
+using Intellishelf.Clients;
+using Intellishelf.Models;
 
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Microsoft.Maui.Controls;
-
-namespace Intellishelf
+namespace Intellishelf.Pages
 {
-    public partial class LoginPage : ContentPage
+    public partial class LoginPage
     {
-        public LoginPage()
+        private readonly IIntellishelfApiClient _client;
+
+        public LoginPage(IIntellishelfApiClient client)
         {
+            _client = client;
             InitializeComponent();
         }
 
         private async void OnLoginClicked(object sender, EventArgs e)
         {
-            string username = UsernameEntry.Text;
-            string password = PasswordEntry.Text;
+            var username = UsernameEntry.Text;
+            var password = PasswordEntry.Text;
 
             // Basic validation
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
@@ -28,50 +26,18 @@ namespace Intellishelf
                 return;
             }
 
-            var token = await FetchJwtToken(username, password);
-            if (!string.IsNullOrEmpty(token))
+            var token = await _client.GetTokenAsync(new UserCredentials(username, password));
+            if (!string.IsNullOrWhiteSpace(token))
             {
                 // Store token and navigate to the main page
                 Preferences.Set("JwtToken", token);
-                await Navigation.PushAsync(new MainPage());
+                await Shell.Current.GoToAsync("//Books");
             }
             else
             {
                 ErrorLabel.Text = "Invalid credentials.";
                 ErrorLabel.IsVisible = true;
             }
-        }
-
-        private async Task<string> FetchJwtToken(string userName, string password)
-        {
-            try
-            {
-                var httpClient = new HttpClient();
-                var loginData = new { userName, password };
-                string json = JsonSerializer.Serialize(loginData);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                var response = await httpClient.PostAsync("http://localhost:8080/api/auth/login", content);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseContent = await response.Content.ReadAsStringAsync();
-                    var responseData = JsonSerializer.Deserialize<JwtResponse>(responseContent);
-                    return responseData?.token;
-                }
-            }
-            catch (Exception ex)
-            {
-                ErrorLabel.Text = "An error occurred during login.";
-                ErrorLabel.IsVisible = true;
-            }
-
-            return null;
-        }
-
-        public class JwtResponse
-        {
-            public string token { get; set; }
         }
     }
 }

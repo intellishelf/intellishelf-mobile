@@ -1,19 +1,11 @@
-﻿namespace Intellishelf;
+﻿namespace Intellishelf.Pages;
 
-public partial class App : Application
+public partial class App
 {
     public App()
     {
         InitializeComponent();
-
-        string token = Preferences.Get("JwtToken", null);
-        if (string.IsNullOrEmpty(token))
-        {
-            MainPage = new NavigationPage(new LoginPage());
-        }
-        else
-        {
-            MainPage = new NavigationPage(new MainPage());
-        }
     }
+
+    protected override Window CreateWindow(IActivationState? activationState) => new (new AppShell());
 }
