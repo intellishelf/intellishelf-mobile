@@ -1,39 +1,49 @@
+using Intellishelf.Clients;
 using Intellishelf.Models;
-using Intellishelf.Services;
 
 namespace Intellishelf;
 
 public partial class Login
 {
-    private readonly IAuthService _authService;
+    private readonly IIntellishelfApiClient _apiClient;
 
-    public Login(IAuthService authService)
+    public Login(IIntellishelfApiClient apiClient)
     {
-        _authService = authService;
+        _apiClient = apiClient;
         InitializeComponent();
     }
 
     private async void OnLoginClicked(object sender, EventArgs e)
     {
-        var username = UsernameEntry.Text;
+        var email = EmailEntry.Text;
         var password = PasswordEntry.Text;
 
-        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
         {
-            ErrorLabel.Text = "Username and password are required.";
+            ErrorLabel.Text = "Email and password are required.";
             ErrorLabel.IsVisible = true;
             return;
         }
 
-        var token = await _authService.LoginAsync(new UserCredentials(username, password));
-        if (!string.IsNullOrWhiteSpace(token))
+        try
         {
-            _authService.StoreToken(token);
-            await Shell.Current.GoToAsync("//Books");
+            var token = await _apiClient.LoginAsync(new UserCredentials(email, password));
+            if (token != null && !string.IsNullOrWhiteSpace(token.AccessToken))
+            {
+                Preferences.Set("AccessToken", token.AccessToken);
+                Preferences.Set("RefreshToken", token.RefreshToken);
+                Preferences.Set("ExpiryDate", token.AccessTokenExpiry.ToString("o"));
+                await Shell.Current.GoToAsync("//Books");
+            }
+            else
+            {
+                ErrorLabel.Text = "Invalid credentials.";
+                ErrorLabel.IsVisible = true;
+            }
         }
-        else
+        catch (Exception ex)
         {
-            ErrorLabel.Text = "Invalid credentials.";
+            ErrorLabel.Text = $"Login failed: {ex.Message}";
             ErrorLabel.IsVisible = true;
         }
     }

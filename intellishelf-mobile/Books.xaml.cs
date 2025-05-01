@@ -1,48 +1,24 @@
-﻿using System.Collections.ObjectModel;
-using Intellishelf.Clients;
-using Intellishelf.Models;
+﻿using Intellishelf.Clients;
+using Intellishelf.ViewModels;
 
 namespace Intellishelf;
 
 public partial class Books
 {
-    private readonly IIntellishelfApiClient _client;
-    private ObservableCollection<Book> BooksList { get; } = [];
+    private readonly BooksViewModel _viewModel;
 
     public Books(IIntellishelfApiClient client)
     {
-        _client = client;
         InitializeComponent();
-        BooksCollection.ItemsSource = BooksList;
-        BindingContext = this;
+        _viewModel = new BooksViewModel(client);
+        BindingContext = _viewModel;
 
-        Loaded += async (s, e) => await FetchBooks();
-    }
-
-    private async Task FetchBooks()
-    {
-        try
-        {
-            var books = await _client.GetBooksAsync();
-
-            BooksList.Clear();
-
-            foreach (var book in books)
-            {
-                BooksList.Add(book);
-            }
-        }
-        catch (Exception ex)
-        {
-            await DisplayAlert("Error", ex.Message, "OK");
-            Preferences.Remove("JwtToken");
-            await Shell.Current.GoToAsync("//Login");
-        }
+        Loaded += async (s, e) => await _viewModel.LoadInitialData();
     }
 
     private async void OnRefreshing(object sender, EventArgs e)
     {
-        await FetchBooks();
+        await _viewModel.ResetAndRefresh();
         BooksRefreshView.IsRefreshing = false;
     }
 

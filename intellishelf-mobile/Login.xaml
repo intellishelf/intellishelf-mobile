@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Intellishelf.Login">
     <VerticalStackLayout Padding="30" Spacing="15">
-        <Entry x:Name="UsernameEntry" Placeholder="Username" />
+        <Entry x:Name="EmailEntry" Placeholder="Email" Keyboard="Email" /> 
         <Entry x:Name="PasswordEntry" Placeholder="Password" IsPassword="True" />
         
         <Button Text="Login" Clicked="OnLoginClicked" />

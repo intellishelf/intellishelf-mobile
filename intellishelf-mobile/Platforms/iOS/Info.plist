@@ -35,6 +35,6 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Some reason</string>
 	<key>CFBundleIdentifier</key>
-	<string>intellishelf.foo</string>
+	<string>intellishelf.test</string>
 </dict>
 </plist>

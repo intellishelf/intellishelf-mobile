@@ -16,8 +16,18 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-        builder.Services.AddSingleton<IIntellishelfApiClient, IntellishelfApiClient>();
-        builder.Services.AddSingleton<IAuthService, AuthService>();
+        // Register AuthHandler
+        builder.Services.AddSingleton<AuthHandler>();
+
+        // Register services
+        builder.Services.AddSingleton<ITokenService, TokenService>();
+
+        builder.Services.AddHttpClient<IIntellishelfApiClient, IntellishelfApiClient>()
+            .ConfigureHttpClient(client =>
+            {
+                client.BaseAddress = new Uri("https://intellishelf-test-fyhfe9bye5g2fud9.centralus-01.azurewebsites.net/api/");
+            })
+            .AddHttpMessageHandler<AuthHandler>();
 
 #if DEBUG
         builder.Logging.AddDebug();
