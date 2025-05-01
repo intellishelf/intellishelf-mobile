@@ -4,5 +4,8 @@ namespace Intellishelf.Clients;
 
 public interface IIntellishelfApiClient
 {
-    Task<string> GetTokenAsync(UserCredentials userCredentials);
+    Task<string> LoginAsync(UserCredentials userCredentials);
+    Task AddBook(Book book);
+    Task<IEnumerable<Book>> GetBooksAsync();
+    Task<Book> ParseBookFromTextAsync(string text);
 }

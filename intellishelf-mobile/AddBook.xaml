@@ -2,8 +2,25 @@
 
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Intellishelf.Pages.AddBook">
-    <ContentPage.Content>
+             x:Class="Intellishelf.AddBook">
+    <VerticalStackLayout Padding="30" Spacing="15">
+        <Button Text="Scan Book"
+                Clicked="OnOpenCameraClicked"
+                Margin="10"
+                VerticalOptions="Center" />
+        <Entry x:Name="Title" Placeholder="Title" />
+        <Entry x:Name="Author" Placeholder="Author" />
+        <Entry x:Name="Publisher" Placeholder="Publisher" />
+        <Entry x:Name="Isbn" Placeholder="Isbn" />
+        <Entry x:Name="Pages" Placeholder="Pages" />
 
-    </ContentPage.Content>
+        <Button Text="Save" Clicked="OnSubmitClicked" />
+
+        <Label x:Name="ErrorLabel" TextColor="Red" IsVisible="False" />
+
+        <ActivityIndicator x:Name="Indicator"
+                           Color="Black"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center"/>
+    </VerticalStackLayout>
 </ContentPage>

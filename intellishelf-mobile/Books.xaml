@@ -1,29 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Intellishelf.MainPage">
+             x:Class="Intellishelf.Books">
 
     <Grid RowDefinitions="Auto,*">
-
-        <Grid Grid.Row="0" ColumnDefinitions="*, Auto">
-            <!-- Header -->
-            <Label Text="Book Library"
-                   Style="{StaticResource Headline}"
-                   Margin="20,20,20,0"
-                   VerticalOptions="Center" />
-
-            <!-- Scan Book Button -->
-            <Button Grid.Column="1"
-                    Text="Scan Book"
-                    Clicked="OnOpenCameraClicked"
-                    Margin="10"
-                    VerticalOptions="Center" />
-        </Grid>
 
         <RefreshView Grid.Row="1"
                      x:Name="BooksRefreshView"
                      Refreshing="OnRefreshing">
-
             <CollectionView x:Name="BooksCollection">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
@@ -48,20 +32,6 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </RefreshView>
-        <Grid Grid.Row="2"
-              IsVisible="{Binding IsBusy}"
-              x:Name="LoadingOverlay"
-              ColumnDefinitions="*,Auto,*"
-              BackgroundColor="Black"
-              Opacity="0.5">
-            <ActivityIndicator
-                IsRunning="True"
-                IsVisible="True"
-                Color="Brown"
-                HorizontalOptions="Center"
-                VerticalOptions="Center" />
-        </Grid>
-
     </Grid>
 
 </ContentPage>

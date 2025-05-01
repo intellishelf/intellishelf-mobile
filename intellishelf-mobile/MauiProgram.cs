@@ -1,5 +1,5 @@
 ﻿using Intellishelf.Clients;
-using Intellishelf.Pages;
+using Intellishelf.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Intellishelf;
@@ -17,6 +17,7 @@ public static class MauiProgram
             });
 
         builder.Services.AddSingleton<IIntellishelfApiClient, IntellishelfApiClient>();
+        builder.Services.AddSingleton<IAuthService, AuthService>();
 
 #if DEBUG
         builder.Logging.AddDebug();

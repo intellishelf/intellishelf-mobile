@@ -1,15 +1,14 @@
-using System.Text.Json.Serialization;
-
 namespace Intellishelf.Models;
 
 public class Book
 {
-    [JsonPropertyName("title")]
+    public string Id { get; set; }
     public string Title { get; set; }
-
-    [JsonPropertyName("authors")]
     public string Authors { get; set; }
-
-    [JsonPropertyName("imageUrl")]
+    public string Isbn { get; set; }
+    public string Annotation { get; set; }
+    public string Description { get; set; }
+    public string Publisher { get; set; }
+    // public int? Pages { get; set; }
     public string ImageUrl { get; set; }
 }
