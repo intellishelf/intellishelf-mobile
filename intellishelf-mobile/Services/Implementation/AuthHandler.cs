@@ -1,18 +1,19 @@
 using System.Net;
 using System.Net.Http.Headers;
-using Intellishelf.Models;
 using System.Text.Json;
+using Intellishelf.Models.Auth;
+using Microsoft.Extensions.Options;
 
-namespace Intellishelf.Services;
+namespace Intellishelf.Services.Implementation;
 
-public class AuthHandler(ITokenService tokenService): DelegatingHandler
+public class AuthHandler(IOptions<ApiSettings> apiSettings, IAuthStorage tokenService)
+    : DelegatingHandler
 {
-    private readonly ITokenService _tokenService = tokenService;
     private readonly SemaphoreSlim _semaphore = new(1, 1);
     private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
-    private const string ApiBaseUrl = "https://intellishelf-test-fyhfe9bye5g2fud9.centralus-01.azurewebsites.net/api/";
 
-    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+        CancellationToken cancellationToken)
     {
         // Skip token handling for authentication endpoints
         if (request.RequestUri?.PathAndQuery.Contains("auth/login") == true ||
@@ -39,7 +40,7 @@ public class AuthHandler(ITokenService tokenService): DelegatingHandler
                 await AddAuthorizationHeader(request, cancellationToken);
 
                 // Check if token is still valid before attempting refresh
-                if (!_tokenService.IsTokenValid())
+                if (!tokenService.IsTokenValid())
                 {
                     // Try to refresh the token
                     if (await RefreshTokenAsync(cancellationToken))
@@ -54,28 +55,19 @@ public class AuthHandler(ITokenService tokenService): DelegatingHandler
                         if (response.StatusCode == HttpStatusCode.Unauthorized)
                         {
                             // Redirect to login page
-                            MainThread.BeginInvokeOnMainThread(() =>
-                            {
-                                Shell.Current.GoToAsync("//Login");
-                            });
+                            MainThread.BeginInvokeOnMainThread(() => { Shell.Current.GoToAsync("//Login"); });
                         }
                     }
                     else
                     {
                         // Failed to refresh token, redirect to login
-                        MainThread.BeginInvokeOnMainThread(() =>
-                        {
-                            Shell.Current.GoToAsync("//Login");
-                        });
+                        MainThread.BeginInvokeOnMainThread(() => { Shell.Current.GoToAsync("//Login"); });
                     }
                 }
                 else
                 {
                     // Token is valid but still getting 401, redirect to login
-                    MainThread.BeginInvokeOnMainThread(() =>
-                    {
-                        Shell.Current.GoToAsync("//Login");
-                    });
+                    MainThread.BeginInvokeOnMainThread(() => { Shell.Current.GoToAsync("//Login"); });
                 }
             }
             finally
@@ -89,7 +81,7 @@ public class AuthHandler(ITokenService tokenService): DelegatingHandler
 
     private async Task AddAuthorizationHeader(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        var token = _tokenService.GetValidAccessTokenAsync();
+        var token = tokenService.GetValidAccessToken();
         if (!string.IsNullOrEmpty(token))
         {
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -104,34 +96,27 @@ public class AuthHandler(ITokenService tokenService): DelegatingHandler
             return false;
         }
 
-        try
+        var content = new StringContent(
+            JsonSerializer.Serialize(new { refreshToken },
+                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }),
+            System.Text.Encoding.UTF8, "application/json");
+
+        var request = new HttpRequestMessage(HttpMethod.Post, $"{apiSettings.Value.BaseUrl}/auth/refresh");
+        request.Content = content;
+
+        var response = await base.SendAsync(request, cancellationToken);
+
+        response.EnsureSuccessStatusCode();
+
+        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+        var authToken = JsonSerializer.Deserialize<AuthResult>(responseContent, _jsonOptions);
+
+        if (authToken != null)
         {
-            var content = new StringContent(JsonSerializer.Serialize(new { refreshToken }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }),
-                System.Text.Encoding.UTF8, "application/json");
-
-            var request = new HttpRequestMessage(HttpMethod.Post, $"{ApiBaseUrl}auth/refresh");
-            request.Content = content;
-
-            var response = await base.SendAsync(request, cancellationToken);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var responseContent = await response.Content.ReadAsStringAsync();
-                var authToken = JsonSerializer.Deserialize<AuthToken>(responseContent, _jsonOptions);
-
-                if (authToken != null)
-                {
-                    _tokenService.SetTokens(authToken);
-                    return true;
-                }
-            }
-
-            return false;
+            tokenService.StoreToken(authToken);
+            return true;
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error refreshing token: {ex.Message}");
-            return false;
-        }
+
+        return false;
     }
 }

@@ -1,6 +1,10 @@
-﻿using Intellishelf.Clients;
+﻿using System.Reflection;
 using Intellishelf.Services;
+using Intellishelf.Services.Implementation;
+using Intellishelf.ViewModels;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Intellishelf;
 
@@ -9,6 +13,7 @@ public static class MauiProgram
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
+
         builder
             .UseMauiApp<App>()
             .ConfigureFonts(fonts =>
@@ -16,23 +21,57 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-        // Register AuthHandler
-        builder.Services.AddSingleton<AuthHandler>();
+        builder.Logging.AddDebug();
+        builder.Logging.SetMinimumLevel(LogLevel.Information);
 
-        // Register services
-        builder.Services.AddSingleton<ITokenService, TokenService>();
+        var assembly = Assembly.GetExecutingAssembly();
+        var resourceName = assembly.GetManifestResourceNames()
+            .Single(n => n.EndsWith("appsettings.json"));
+        using var stream = assembly.GetManifestResourceStream(resourceName)!;
+
+        var config = new ConfigurationBuilder()
+            .AddJsonStream(stream)
+            .Build();
+
+        builder.Configuration.AddConfiguration(config);
+
+        builder.Services
+            .Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
+
+        builder.Services.AddSingleton<IAuthStorage, AuthStorage>();
+        builder.Services.AddTransient<AuthHandler>();
 
         builder.Services.AddHttpClient<IIntellishelfApiClient, IntellishelfApiClient>()
-            .ConfigureHttpClient(client =>
+            .ConfigureHttpClient((sp, client) =>
             {
-                client.BaseAddress = new Uri("https://intellishelf-test-fyhfe9bye5g2fud9.centralus-01.azurewebsites.net/api/");
+                var settings = sp
+                    .GetRequiredService<IOptions<ApiSettings>>()
+                    .Value;
+
+                client.BaseAddress = new Uri(settings.BaseUrl);
             })
             .AddHttpMessageHandler<AuthHandler>();
+
+        builder.Services.AddTransient<BooksViewModel>();
 
 #if DEBUG
         builder.Logging.AddDebug();
 #endif
 
-        return builder.Build();
+        var app = builder.Build();
+
+        // Set up safe global exception handling
+        var logger = app.Services.GetService<ILoggerFactory>()?.CreateLogger("GlobalExceptionHandler");
+        SetupGlobalExceptionHandling(logger);
+
+        return app;
+    }
+
+    private static void SetupGlobalExceptionHandling(ILogger logger)
+    {
+        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+        {
+            logger.LogError(e.ExceptionObject as Exception, "Unhandled exception occurred");
+        };
     }
 }

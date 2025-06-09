@@ -1,6 +1,7 @@
 using Foundation;
-using Intellishelf.Clients;
 using Intellishelf.Models;
+using Intellishelf.Models.Books;
+using Intellishelf.Services;
 using UIKit;
 using Vision;
 
@@ -9,6 +10,7 @@ namespace Intellishelf;
 public partial class AddBook
 {
     private readonly IIntellishelfApiClient _client;
+    private byte[]? _selectedImageData;
 
     public AddBook(IIntellishelfApiClient client)
     {
@@ -16,30 +18,56 @@ public partial class AddBook
         InitializeComponent();
     }
 
-    private async void OnSubmitClicked(object sender, EventArgs e)
+    private async void OnSelectImageClicked(object sender, EventArgs e)
     {
-        var book = new Book
+        try
         {
-            Title = Title.Text,
-            Authors = Author.Text,
-            Publisher = Publisher.Text,
-            Isbn = Isbn.Text,
-        };
-
-        await _client.AddBook(book);
-
-        await DisplayAlert("Added", "Book has been added", "OK");
-
-        await Shell.Current.GoToAsync("//Books");
+            var result = await MediaPicker.PickPhotoAsync();
+            if (result != null)
+            {
+                using var stream = await result.OpenReadAsync();
+                using var memoryStream = new MemoryStream();
+                await stream.CopyToAsync(memoryStream);
+                _selectedImageData = memoryStream.ToArray();
+                
+                CoverImage.Source = ImageSource.FromStream(() => new MemoryStream(_selectedImageData));
+            }
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", "Failed to select image: " + ex.Message, "OK");
+        }
     }
 
+    private async void OnSubmitClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            var book = new Book
+            {
+                Title = Title.Text,
+                Authors = Authors.Text,
+                Publisher = Publisher.Text,
+                Isbn = Isbn.Text,
+                CoverImage = _selectedImageData != null ? new MemoryStream(_selectedImageData) : null
+            };
+
+            await _client.AddBook(book);
+
+            await DisplayAlert("Added", "Book has been added", "OK");
+
+            await Shell.Current.GoToAsync("//Books");
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", "Failed to add book: " + ex.Message, "OK");
+        }
+    }
 
     private async void OnOpenCameraClicked(object sender, EventArgs e)
     {
         try
         {
-            Indicator.IsVisible = true;
-            Indicator.IsRunning = true;
 
             if (MediaPicker.Default.IsCaptureSupported)
             {
@@ -48,8 +76,8 @@ public partial class AddBook
                 if (photo == null) return;
                 var localFilePath = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
 
-                using (var stream = await photo.OpenReadAsync())
-                using (var fileStream = File.OpenWrite(localFilePath))
+                await using (var stream = await photo.OpenReadAsync())
+                await using (var fileStream = File.OpenWrite(localFilePath))
                 {
                     await stream.CopyToAsync(fileStream);
                 }
@@ -76,12 +104,9 @@ public partial class AddBook
             var book = await _client.ParseBookFromTextAsync(parsedText);
 
             Title.Text = book.Title;
-            Author.Text = book.Authors;
+            Authors.Text = book.Authors;
             Publisher.Text = book.Publisher;
             Isbn.Text = book.Isbn;
-
-            Indicator.IsVisible = false;
-            Indicator.IsRunning = false;
         }
         catch (Exception ex)
         {

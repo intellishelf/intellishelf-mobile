@@ -1,14 +1,18 @@
-﻿namespace Intellishelf;
+﻿using Intellishelf.Services;
+
+namespace Intellishelf;
 
 public partial class App
 {
-    public App()
+    private readonly IAuthStorage _tokenService;
+    public App(IAuthStorage tokenService)
     {
+        _tokenService = tokenService;
         InitializeComponent();
     }
 
     protected override Window CreateWindow(IActivationState? activationState) {
-        var token = Preferences.Get("JwtToken", null);
+        var token = _tokenService.GetValidAccessToken();
 
         var shell = new AppShell();
 

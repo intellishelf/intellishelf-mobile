@@ -1,12 +1,11 @@
+## Active Context
+
 - Updated `IntellishelfApiClient.cs` to accept email for login.
 - Implemented pagination for book list with infinite scrolling.
 - Added sorting capabilities for books by Title, Author, Published date, and Added date.
 
 ## Current Focus Areas
-1. Memory bank documentation completion
-2. Offline-first synchronization implementation
-3. MAUI performance optimization
-4. MCP integration testing
+1. Render book cover on the Books page.
 
 ## Recent Changes
 - Created initial memory bank structure
@@ -16,6 +15,7 @@
 - Refactored `IntellishelfApiClient` to use a `BaseApiClient` for common logic (token handling, request sending).
 - Updated `AuthToken` model and login process to handle Access Token, Refresh Token, and Expiry Date from API.
 - Implemented pagination for book list with infinite scrolling and sorting capabilities.
+- Implemented logic to render book cover on the Books page, using the provided API endpoint.
 
 ## Key Decisions
 - Using SQLite-net for local storage

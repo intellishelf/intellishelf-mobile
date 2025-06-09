@@ -1,19 +1,31 @@
-﻿using Intellishelf.Clients;
-using Intellishelf.ViewModels;
+﻿using Intellishelf.ViewModels;
+using System.IO;
+using System.Text.Json;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Graphics;
+using Microsoft.Maui.Media;
+using Microsoft.Maui.Storage;
+using System;
+using Intellishelf.Services;
 
 namespace Intellishelf;
 
-public partial class Books
+public partial class Books : ContentPage
 {
-    private readonly BooksViewModel _viewModel;
+    private readonly IAuthStorage _tokenService;
+    private readonly HttpClient _httpClient;
+    private BooksViewModel _viewModel;
 
-    public Books(IIntellishelfApiClient client)
+    public Books(IAuthStorage tokenService, HttpClient httpClient, BooksViewModel viewModel)
     {
         InitializeComponent();
-        _viewModel = new BooksViewModel(client);
+        _tokenService = tokenService;
+        _httpClient = httpClient;
+        _viewModel = viewModel;
         BindingContext = _viewModel;
-
-        Loaded += async (s, e) => await _viewModel.LoadInitialData();
     }
 
     private async void OnRefreshing(object sender, EventArgs e)

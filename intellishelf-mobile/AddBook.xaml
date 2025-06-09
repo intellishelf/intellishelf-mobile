@@ -1,26 +1,33 @@
-<?xml version="1.0" encoding="utf-8"?>
-
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Intellishelf.AddBook">
-    <VerticalStackLayout Padding="30" Spacing="15">
-        <Button Text="Scan Book"
-                Clicked="OnOpenCameraClicked"
-                Margin="10"
-                VerticalOptions="Center" />
-        <Entry x:Name="Title" Placeholder="Title" />
-        <Entry x:Name="Author" Placeholder="Author" />
-        <Entry x:Name="Publisher" Placeholder="Publisher" />
-        <Entry x:Name="Isbn" Placeholder="Isbn" />
-        <Entry x:Name="Pages" Placeholder="Pages" />
+             x:Class="Intellishelf.AddBook"
+             Title="Add Book">
+    <ScrollView>
+        <VerticalStackLayout Spacing="10" Padding="20">
+            <Button Text="Scan Book"
+                    Clicked="OnOpenCameraClicked"
+                    Margin="10"
+                    VerticalOptions="Center" />
+            <Label Text="Title" />
+            <Entry x:Name="Title" />
 
-        <Button Text="Save" Clicked="OnSubmitClicked" />
+            <Label Text="Authors" />
+            <Entry x:Name="Authors" />
 
-        <Label x:Name="ErrorLabel" TextColor="Red" IsVisible="False" />
+            <Label Text="Publisher" />
+            <Entry x:Name="Publisher" />
 
-        <ActivityIndicator x:Name="Indicator"
-                           Color="Black"
-                           VerticalOptions="Center"
-                           HorizontalOptions="Center"/>
-    </VerticalStackLayout>
+            <Label Text="ISBN" />
+            <Entry x:Name="Isbn" />
+
+            <Label Text="Cover Image" />
+            <Frame BorderColor="Gray" Padding="0" HeightRequest="200" WidthRequest="200">
+                <Image x:Name="CoverImage" Aspect="AspectFit" />
+            </Frame>
+            <Button Text="Select Image" Clicked="OnSelectImageClicked" />
+
+            <Button Text="Submit" Clicked="OnSubmitClicked" Margin="0,20,0,0" />
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

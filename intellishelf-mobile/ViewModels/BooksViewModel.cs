@@ -1,17 +1,18 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using Intellishelf.Clients;
 using Intellishelf.Models;
-using Microsoft.Maui.Controls;
+using Intellishelf.Models.Books;
+using Intellishelf.Services;
 
 namespace Intellishelf.ViewModels;
 
 public class BooksViewModel : BindableObject
 {
     private readonly IIntellishelfApiClient _client;
-    
+    private readonly IAuthStorage _tokenService;
+
     public ObservableCollection<Book> Books { get; } = new ObservableCollection<Book>();
-    
+
     private int _currentPage = 0;
     public int CurrentPage
     {
@@ -104,25 +105,26 @@ public class BooksViewModel : BindableObject
     public ICommand RefreshCommand { get; }
     
     public List<BookOrderBy> OrderOptions { get; } = Enum.GetValues(typeof(BookOrderBy)).Cast<BookOrderBy>().ToList();
-    
-    public BooksViewModel(IIntellishelfApiClient client)
+
+    public BooksViewModel(IIntellishelfApiClient client, IAuthStorage tokenService)
     {
         _client = client;
-        
+        _tokenService = tokenService;
+
         LoadMoreCommand = new Command(
             async () => await LoadMoreBooks(),
             () => !IsBusy && CurrentPage < TotalPages);
-            
+
         RefreshCommand = new Command(
             async () => await ResetAndRefresh(),
             () => !IsBusy);
     }
-    
+
     public async Task LoadInitialData()
     {
         await ResetAndRefresh();
     }
-    
+
     public async Task ResetAndRefresh()
     {
         Books.Clear();
@@ -130,14 +132,14 @@ public class BooksViewModel : BindableObject
         TotalPages = 0;
         await LoadMoreBooks();
     }
-    
+
     public async Task LoadMoreBooks()
     {
         if (IsBusy || CurrentPage >= TotalPages && TotalPages != 0)
             return;
-            
+
         IsBusy = true;
-        
+
         try
         {
             var result = await _client.GetBooksPagedAsync(
@@ -145,14 +147,16 @@ public class BooksViewModel : BindableObject
                 PageSize,
                 SelectedOrder,
                 IsAscending);
-                
+
             if (result != null)
             {
                 foreach (var book in result.Items)
                 {
+                    var bytes = await _client.GetImageContentAsync(_tokenService.GetUserId(), book.FileName);
+                    book.CoverImageSource = ImageSource.FromStream(() => new MemoryStream(bytes));
                     Books.Add(book);
                 }
-                
+
                 CurrentPage = result.Page;
                 TotalPages = result.TotalPages;
             }
@@ -167,4 +171,5 @@ public class BooksViewModel : BindableObject
             IsBusy = false;
         }
     }
+
 }

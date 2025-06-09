@@ -8,6 +8,7 @@
 - [ ] ISBN scanning via camera
 - [ ] AI chat interface skeleton
 - [x] Local data caching mechanism (Tokens now stored in Preferences)
+- [x] Render book cover on the Books page
 
 ## Pending Implementation
 - [ ] Full offline sync capabilities
@@ -27,3 +28,5 @@
 - Implemented JWT refresh flow (2024-05-01) - Note: This seems incorrect based on the task, the refresh *logic* wasn't implemented, just the data handling. Correcting this.
 - Refactored API Client and updated Auth flow (2025-05-01)
 - Implemented pagination and sorting for book list (2025-05-01)
+- Added task to render book cover on the Books page (2025-05-02)
+- Implemented logic to render book cover on the Books page (2025-05-02)

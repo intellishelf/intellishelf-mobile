@@ -1,15 +1,17 @@
-using Intellishelf.Clients;
-using Intellishelf.Models;
+using Intellishelf.Models.Auth;
+using Intellishelf.Services;
 
 namespace Intellishelf;
 
 public partial class Login
 {
     private readonly IIntellishelfApiClient _apiClient;
+    private readonly IAuthStorage _tokenService;
 
-    public Login(IIntellishelfApiClient apiClient)
+    public Login(IIntellishelfApiClient apiClient, IAuthStorage tokenService)
     {
         _apiClient = apiClient;
+        _tokenService = tokenService;
         InitializeComponent();
     }
 
@@ -25,14 +27,10 @@ public partial class Login
             return;
         }
 
-        try
-        {
             var token = await _apiClient.LoginAsync(new UserCredentials(email, password));
-            if (token != null && !string.IsNullOrWhiteSpace(token.AccessToken))
+            if (!string.IsNullOrWhiteSpace(token.AccessToken))
             {
-                Preferences.Set("AccessToken", token.AccessToken);
-                Preferences.Set("RefreshToken", token.RefreshToken);
-                Preferences.Set("ExpiryDate", token.AccessTokenExpiry.ToString("o"));
+                _tokenService.StoreToken(token);
                 await Shell.Current.GoToAsync("//Books");
             }
             else
@@ -40,11 +38,6 @@ public partial class Login
                 ErrorLabel.Text = "Invalid credentials.";
                 ErrorLabel.IsVisible = true;
             }
-        }
-        catch (Exception ex)
-        {
-            ErrorLabel.Text = $"Login failed: {ex.Message}";
-            ErrorLabel.IsVisible = true;
-        }
+
     }
 }
