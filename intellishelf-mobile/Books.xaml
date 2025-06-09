@@ -1,43 +1,38 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Intellishelf.Books">
+             x:Class="Intellishelf.Books"
+             x:Name="BooksPage">
 
     <Grid RowDefinitions="Auto,Auto,*">
         <!-- Sorting Controls -->
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="10">
             <Picker Title="Order By" 
                     Grid.Column="0"
-                    ItemsSource="{Binding OrderOptions}"
-                    SelectedItem="{Binding SelectedOrder}"
-                    Margin="0,0,10,0">
-                <Picker.ItemDisplayBinding>
-                    <Binding />
-                </Picker.ItemDisplayBinding>
-            </Picker>
+                    x:Name="OrderByPicker"
+                    SelectedIndexChanged="OnOrderByChanged"
+                    Margin="0,0,10,0" />
             
             <HorizontalStackLayout Grid.Column="1" Spacing="5">
                 <Label Text="Ascending" VerticalOptions="Center" />
-                <CheckBox IsChecked="{Binding IsAscending}" />
+                <CheckBox x:Name="AscendingCheckBox" 
+                         CheckedChanged="OnAscendingChanged" />
             </HorizontalStackLayout>
         </Grid>
         
         <!-- Status Information -->
         <HorizontalStackLayout Grid.Row="1" Margin="10,0,10,5" Spacing="10">
-            <Label Text="{Binding CurrentPage, StringFormat='Page {0}'}" />
+            <Label x:Name="CurrentPageLabel" />
             <Label Text="of" />
-            <Label Text="{Binding TotalPages}" />
+            <Label x:Name="TotalPagesLabel" />
         </HorizontalStackLayout>
 
         <RefreshView Grid.Row="2"
                      x:Name="BooksRefreshView"
-                     Refreshing="OnRefreshing"
-                     Command="{Binding RefreshCommand}"
-                     >
+                     Refreshing="OnRefreshRequested">
             <CollectionView x:Name="BooksCollection"
-                           ItemsSource="{Binding Books}"
                            RemainingItemsThreshold="5"
-                           RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
+                           RemainingItemsThresholdReached="OnLoadMoreRequested">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Border Margin="20"
@@ -61,8 +56,7 @@
                 </CollectionView.ItemTemplate>
                 <CollectionView.Footer>
                     <Grid Padding="10">
-                        <ActivityIndicator IsRunning="{Binding IsBusy}" 
-                                         IsVisible="{Binding IsBusy}"
+                        <ActivityIndicator x:Name="LoadingIndicator"
                                          HorizontalOptions="Center"
                                          VerticalOptions="Center"
                                          HeightRequest="50"

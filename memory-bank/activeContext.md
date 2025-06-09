@@ -3,9 +3,10 @@
 - Updated `IntellishelfApiClient.cs` to accept email for login.
 - Implemented pagination for book list with infinite scrolling.
 - Added sorting capabilities for books by Title, Author, Published date, and Added date.
+- Refactored Books page to remove complex ViewModel dependency for POC simplicity.
 
 ## Current Focus Areas
-1. Render book cover on the Books page.
+1. Books page now uses direct code-behind implementation without ViewModel complexity.
 
 ## Recent Changes
 - Created initial memory bank structure
@@ -16,6 +17,7 @@
 - Updated `AuthToken` model and login process to handle Access Token, Refresh Token, and Expiry Date from API.
 - Implemented pagination for book list with infinite scrolling and sorting capabilities.
 - Implemented logic to render book cover on the Books page, using the provided API endpoint.
+- **MAJOR**: Refactored Books.xaml and Books.xaml.cs to eliminate BooksViewModel dependency - moved all logic directly to code-behind for POC simplicity.
 
 ## Key Decisions
 - Using SQLite-net for local storage

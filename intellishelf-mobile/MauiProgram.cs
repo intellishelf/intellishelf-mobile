@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using Intellishelf.Services;
 using Intellishelf.Services.Implementation;
-using Intellishelf.ViewModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -52,7 +51,6 @@ public static class MauiProgram
             })
             .AddHttpMessageHandler<AuthHandler>();
 
-        builder.Services.AddTransient<BooksViewModel>();
 
 #if DEBUG
         builder.Logging.AddDebug();

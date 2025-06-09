@@ -27,17 +27,10 @@ public partial class Login
             return;
         }
 
-            var token = await _apiClient.LoginAsync(new UserCredentials(email, password));
-            if (!string.IsNullOrWhiteSpace(token.AccessToken))
-            {
-                _tokenService.StoreToken(token);
-                await Shell.Current.GoToAsync("//Books");
-            }
-            else
-            {
-                ErrorLabel.Text = "Invalid credentials.";
-                ErrorLabel.IsVisible = true;
-            }
+        var token = await _apiClient.LoginAsync(new UserCredentials(email, password));
 
+        _tokenService.StoreToken(token);
+
+        await Shell.Current.GoToAsync("//Books");
     }
 }
