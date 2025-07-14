@@ -4,7 +4,7 @@ using Intellishelf.Models;
 using Intellishelf.Models.Books;
 using Intellishelf.Services;
 
-namespace Intellishelf;
+namespace Intellishelf.Pages;
 
 public partial class Books : ContentPage, INotifyPropertyChanged
 {

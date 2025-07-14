@@ -1,7 +1,7 @@
 using Intellishelf.Models.Auth;
 using Intellishelf.Services;
 
-namespace Intellishelf;
+namespace Intellishelf.Pages;
 
 public partial class Login
 {

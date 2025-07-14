@@ -4,14 +4,15 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Intellishelf"
+    xmlns:pages="clr-namespace:Intellishelf.Pages"
     FlyoutBehavior="Disabled"
     Title="Intellishelf">
 
-    <ShellContent Title="Login" Route="Login" ContentTemplate="{DataTemplate local:Login}" />
+    <ShellContent Title="Login" Route="Login" ContentTemplate="{DataTemplate pages:Login}" />
 
     <TabBar>
-        <ShellContent Title="Books" Route="Books" ContentTemplate="{DataTemplate local:Books}" />
-        <ShellContent Title="Add" Route="AddBook" ContentTemplate="{DataTemplate local:AddBook}" />
+        <ShellContent Title="Books" Route="Books" ContentTemplate="{DataTemplate pages:Books}" />
+        <ShellContent Title="Add" Route="AddBook" ContentTemplate="{DataTemplate pages:AddBook}" />
     </TabBar>
 
 </Shell>

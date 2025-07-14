@@ -4,7 +4,7 @@ using Intellishelf.Services;
 using UIKit;
 using Vision;
 
-namespace Intellishelf;
+namespace Intellishelf.Pages;
 
 public partial class AddBook
 {
