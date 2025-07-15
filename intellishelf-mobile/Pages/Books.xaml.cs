@@ -107,6 +107,7 @@ public partial class Books : ContentPage, INotifyPropertyChanged
         await LoadMoreBooksAsync();
     }
 
+
     // Core functionality
     private async Task RefreshBooksAsync()
     {
@@ -144,11 +145,6 @@ public partial class Books : ContentPage, INotifyPropertyChanged
         {
             foreach (var book in result.Items)
             {
-                if (!string.IsNullOrEmpty(book.FileName))
-                {
-                    var bytes = await _client.GetImageContentAsync(_tokenService.GetUserId(), book.FileName);
-                    book.CoverImageSource = ImageSource.FromStream(() => new MemoryStream(bytes));
-                }
                 BooksList.Add(book);
             }
 

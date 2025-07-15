@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using Intellishelf.Infra;
 using Intellishelf.Models.Auth;
 using Microsoft.Extensions.Options;
 
@@ -51,23 +52,34 @@ public class AuthHandler(IOptions<ApiSettings> apiSettings, IAuthStorage tokenSe
                         // Retry the request
                         response = await base.SendAsync(request, cancellationToken);
 
-                        // If still unauthorized after refresh, redirect to login
+                        // If still unauthorized after refresh, clear tokens and redirect to login
                         if (response.StatusCode == HttpStatusCode.Unauthorized)
                         {
-                            // Redirect to login page
+                            tokenService.ClearTokens();
                             MainThread.BeginInvokeOnMainThread(() => { Shell.Current.GoToAsync("//Login"); });
+                            
+                            // Return a custom response to prevent client from seeing 401
+                            return CreateAuthFailureResponse();
                         }
                     }
                     else
                     {
-                        // Failed to refresh token, redirect to login
+                        // Failed to refresh token, clear tokens and redirect to login
+                        tokenService.ClearTokens();
                         MainThread.BeginInvokeOnMainThread(() => { Shell.Current.GoToAsync("//Login"); });
+                        
+                        // Return a custom response to prevent client from seeing 401
+                        return CreateAuthFailureResponse();
                     }
                 }
                 else
                 {
-                    // Token is valid but still getting 401, redirect to login
+                    // Token is valid but still getting 401, clear tokens and redirect to login
+                    tokenService.ClearTokens();
                     MainThread.BeginInvokeOnMainThread(() => { Shell.Current.GoToAsync("//Login"); });
+                    
+                    // Return a custom response to prevent client from seeing 401
+                    return CreateAuthFailureResponse();
                 }
             }
             finally
@@ -90,7 +102,7 @@ public class AuthHandler(IOptions<ApiSettings> apiSettings, IAuthStorage tokenSe
 
     private async Task<bool> RefreshTokenAsync(CancellationToken cancellationToken)
     {
-        var refreshToken = Preferences.Get("RefreshToken", string.Empty);
+        var refreshToken = tokenService.GetRefreshToken();
         if (string.IsNullOrEmpty(refreshToken))
         {
             return false;
@@ -106,7 +118,11 @@ public class AuthHandler(IOptions<ApiSettings> apiSettings, IAuthStorage tokenSe
 
         var response = await base.SendAsync(request, cancellationToken);
 
-        response.EnsureSuccessStatusCode();
+        // Check if refresh was successful
+        if (!response.IsSuccessStatusCode)
+        {
+            return false;
+        }
 
         var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
         var authToken = JsonSerializer.Deserialize<AuthResult>(responseContent, _jsonOptions);
@@ -118,5 +134,15 @@ public class AuthHandler(IOptions<ApiSettings> apiSettings, IAuthStorage tokenSe
         }
 
         return false;
+    }
+
+    private HttpResponseMessage CreateAuthFailureResponse()
+    {
+        // Create a successful response to prevent EnsureSuccessStatusCode from throwing
+        // We're redirecting to login anyway, so this prevents the client crash
+        var response = new HttpResponseMessage(HttpStatusCode.OK);
+        response.Content = new StringContent("{}", 
+            System.Text.Encoding.UTF8, "application/json");
+        return response;
     }
 }

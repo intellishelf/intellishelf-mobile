@@ -8,6 +8,8 @@ public class AuthStorage : IAuthStorage
         ? Preferences.Get(nameof(AuthResult.AccessToken), null)
         : null;
 
+    public string? GetRefreshToken() => Preferences.Get(nameof(AuthResult.RefreshToken), null);
+
     public bool IsTokenValid()
     {
         var expiryString = Preferences.Get(nameof(AuthResult.AccessTokenExpiry), string.Empty);
@@ -24,13 +26,17 @@ public class AuthStorage : IAuthStorage
         return false;
     }
 
-    public string GetUserId() => Preferences.Get(nameof(AuthResult.UserId), string.Empty);
-
     public void StoreToken(AuthResult authToken)
     {
-        Preferences.Set(nameof(AuthResult.UserId), authToken.UserId);
         Preferences.Set(nameof(AuthResult.AccessToken), authToken.AccessToken);
         Preferences.Set(nameof(AuthResult.RefreshToken), authToken.RefreshToken);
         Preferences.Set(nameof(AuthResult.AccessTokenExpiry), authToken.AccessTokenExpiry.ToString("o"));
+    }
+
+    public void ClearTokens()
+    {
+        Preferences.Remove(nameof(AuthResult.AccessToken));
+        Preferences.Remove(nameof(AuthResult.RefreshToken));
+        Preferences.Remove(nameof(AuthResult.AccessTokenExpiry));
     }
 }

@@ -1,3 +1,5 @@
+
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -29,9 +31,7 @@ public class IntellishelfApiClient(HttpClient httpClient)
     public async Task<Book> ParseBookFromTextAsync(string text) =>
         await SendAsync<Book>(HttpMethod.Post, "books/parse-text", new { text });
 
-    public async Task<byte[]> GetImageContentAsync(string userId, string fileName) =>
-        await (await httpClient.GetAsync($"{httpClient.BaseAddress}users/{userId}/files/{fileName}")).Content
-            .ReadAsByteArrayAsync();
+
 
     public async Task AddBook(Book book)
     {

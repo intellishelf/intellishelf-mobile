@@ -14,7 +14,7 @@ public partial class App
     protected override Window CreateWindow(IActivationState? activationState) {
         var token = _tokenService.GetValidAccessToken();
 
-        var shell = new AppShell();
+        var shell = new AppShell(_tokenService);
 
         shell.GoToAsync(string.IsNullOrEmpty(token) ? "//Login" : "//Books");
 

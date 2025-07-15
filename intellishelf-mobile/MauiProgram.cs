@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Intellishelf.Infra;
 using Intellishelf.Services;
 using Intellishelf.Services.Implementation;
 using Microsoft.Extensions.Configuration;
@@ -69,6 +70,10 @@ public static class MauiProgram
     {
         AppDomain.CurrentDomain.UnhandledException += (_, e) =>
         {
+            if (e.ExceptionObject is UnauthorizedAccessException )
+            {
+                MainThread.BeginInvokeOnMainThread(() => { Shell.Current.GoToAsync("//Login"); });
+            }
             logger.LogError(e.ExceptionObject as Exception, "Unhandled exception occurred");
         };
     }

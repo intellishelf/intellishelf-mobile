@@ -1,4 +1,4 @@
-namespace Intellishelf;
+namespace Intellishelf.Infra;
 
 public class ApiSettings
 {

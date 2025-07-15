@@ -41,7 +41,7 @@
                                 <Image HeightRequest="150"
                                        WidthRequest="150"
                                        Aspect="AspectFit"
-                                       Source="{Binding CoverImageSource}" />
+                                       Source="{Binding CoverImageUrl}" />
                                 <VerticalStackLayout Grid.Column="1" 
                                                    Padding="10,0">
                                     <Label Text="{Binding Title}"

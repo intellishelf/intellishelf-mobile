@@ -150,8 +150,6 @@ public class BooksViewModel : BindableObject
         {
             foreach (var book in result.Items)
             {
-                var bytes = await _client.GetImageContentAsync(_tokenService.GetUserId(), book.FileName);
-                book.CoverImageSource = ImageSource.FromStream(() => new MemoryStream(bytes));
                 Books.Add(book);
             }
 

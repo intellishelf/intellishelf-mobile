@@ -16,13 +16,10 @@ public class Book
     public DateTime? PublicationDate { get; init; }
     public string? Publisher { get; init; }
     public string[]? Tags { get; init; }
-    public string? CoverUrl { get; set; }
+    public string? CoverImageUrl { get; set; }
 
     [JsonIgnore]
     public Stream? CoverImage { get; set; }
-    
-    [JsonIgnore]
-    public ImageSource? CoverImageSource { get; set; }
 
     public Dictionary<string, string> ToFormData()
     {
