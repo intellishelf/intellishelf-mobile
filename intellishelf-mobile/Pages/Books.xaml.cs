@@ -1,18 +1,18 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using Intellishelf.Clients;
+using Intellishelf.Infra;
 using Intellishelf.Models;
 using Intellishelf.Models.Books;
-using Intellishelf.Services;
 
 namespace Intellishelf.Pages;
 
 public partial class Books : ContentPage, INotifyPropertyChanged
 {
-    private readonly IAuthStorage _tokenService;
     private readonly IIntellishelfApiClient _client;
 
     // Collections and state
-    public ObservableCollection<Book> BooksList { get; } = new ObservableCollection<Book>();
+    public ObservableCollection<Book> BooksList { get; } = [];
     
     private int _currentPage = 0;
     private int _totalPages = 0;
@@ -24,10 +24,9 @@ public partial class Books : ContentPage, INotifyPropertyChanged
     // Order options for picker
     private readonly List<BookOrderBy> _orderOptions = Enum.GetValues(typeof(BookOrderBy)).Cast<BookOrderBy>().ToList();
 
-    public Books(IAuthStorage tokenService, IIntellishelfApiClient client)
+    public Books(IIntellishelfApiClient client)
     {
         InitializeComponent();
-        _tokenService = tokenService;
         _client = client;
         
         InitializeControls();
@@ -133,13 +132,24 @@ public partial class Books : ContentPage, INotifyPropertyChanged
     {
         if (_isBusy) return;
 
+        PagedResult<Book> result = null;
+
         UpdateLoadingState(true);
 
-        var result = await _client.GetBooksPagedAsync(
-            _currentPage + 1,
-            PageSize,
-            _selectedOrder,
-            _isAscending);
+        try
+        {
+            result = await _client.GetBooksPagedAsync(
+                _currentPage + 1,
+                PageSize,
+                _selectedOrder,
+                _isAscending);
+        }
+        catch (UserSessionExpiredException e)
+        {
+            Console.WriteLine(e);
+
+            await Shell.Current.GoToAsync("//Login");
+        }
 
         if (result != null)
         {

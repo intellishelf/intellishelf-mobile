@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Intellishelf.Clients;
 using Intellishelf.Infra;
 using Intellishelf.Services;
 using Intellishelf.Services.Implementation;
@@ -51,6 +52,16 @@ public static class MauiProgram
                 client.BaseAddress = new Uri(settings.BaseUrl);
             })
             .AddHttpMessageHandler<AuthHandler>();
+
+        builder.Services.AddHttpClient<IIntellishelfAuthClient, IntellishelfAuthClient>()
+            .ConfigureHttpClient((sp, client) =>
+            {
+                var settings = sp
+                    .GetRequiredService<IOptions<ApiSettings>>()
+                    .Value;
+
+                client.BaseAddress = new Uri(settings.BaseUrl);
+            });
 
 
 #if DEBUG

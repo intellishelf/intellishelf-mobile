@@ -1,3 +1,4 @@
+using Intellishelf.Clients;
 using Intellishelf.Models.Auth;
 using Intellishelf.Services;
 
@@ -5,12 +6,12 @@ namespace Intellishelf.Pages;
 
 public partial class Login
 {
-    private readonly IIntellishelfApiClient _apiClient;
+    private readonly IIntellishelfAuthClient _authClient;
     private readonly IAuthStorage _tokenService;
 
-    public Login(IIntellishelfApiClient apiClient, IAuthStorage tokenService)
+    public Login(IIntellishelfAuthClient authClient, IAuthStorage tokenService)
     {
-        _apiClient = apiClient;
+        _authClient = authClient;
         _tokenService = tokenService;
         InitializeComponent();
     }
@@ -22,14 +23,17 @@ public partial class Login
 
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
         {
-            ErrorLabel.Text = "Email and password are required.";
             ErrorLabel.IsVisible = true;
             return;
         }
 
-        var token = await _apiClient.LoginAsync(new UserCredentials(email, password));
+        var token = await _authClient.LoginAsync(new UserCredentials(email, password));
 
         _tokenService.StoreToken(token);
+
+        ErrorLabel.IsVisible = false;
+        EmailEntry.Text = "";
+        PasswordEntry.Text = "";
 
         await Shell.Current.GoToAsync("//Books");
     }

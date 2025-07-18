@@ -4,13 +4,13 @@ namespace Intellishelf.Services.Implementation;
 
 public class AuthStorage : IAuthStorage
 {
-    public string? GetValidAccessToken() => IsTokenValid()
+    public string? GetValidAccessToken() => IsAccessTokenValid()
         ? Preferences.Get(nameof(AuthResult.AccessToken), null)
         : null;
 
     public string? GetRefreshToken() => Preferences.Get(nameof(AuthResult.RefreshToken), null);
 
-    public bool IsTokenValid()
+    public bool IsAccessTokenValid()
     {
         var expiryString = Preferences.Get(nameof(AuthResult.AccessTokenExpiry), string.Empty);
         if (string.IsNullOrEmpty(expiryString))
@@ -20,7 +20,9 @@ public class AuthStorage : IAuthStorage
 
         if (DateTime.TryParse(expiryString, out var expiry))
         {
-            return expiry > DateTime.UtcNow.AddSeconds(30);
+            var isValid = expiry.ToUniversalTime() > DateTime.UtcNow.AddSeconds(30);
+
+            return isValid;
         }
 
         return false;

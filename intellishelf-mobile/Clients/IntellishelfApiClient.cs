@@ -1,22 +1,13 @@
-
-using System.Net;
 using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
 using Intellishelf.Models;
-using Intellishelf.Models.Auth;
 using Intellishelf.Models.Books;
 
-namespace Intellishelf.Services.Implementation;
+namespace Intellishelf.Clients;
 
 public class IntellishelfApiClient(HttpClient httpClient)
-    : IIntellishelfApiClient
+    : IntellishelfBaseClient(httpClient), IIntellishelfApiClient
 {
-    private static readonly JsonSerializerOptions InputJsonSerializerOptions = new()
-        { PropertyNameCaseInsensitive = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-
-    public async Task<AuthResult> LoginAsync(UserCredentials userCredentials) =>
-        await SendAsync<AuthResult>(HttpMethod.Post, "auth/login", userCredentials);
+    private readonly HttpClient _httpClient = httpClient;
 
     public async Task<PagedResult<Book>> GetBooksPagedAsync(
         int page,
@@ -56,27 +47,8 @@ public class IntellishelfApiClient(HttpClient httpClient)
             formData.Add(imageContent, "ImageFile", "cover.jpg");
         }
 
-        var response = await httpClient.PostAsync("books", formData);
+        var response = await _httpClient.PostAsync("books", formData);
 
         response.EnsureSuccessStatusCode();
     }
-
-    private async Task<T> SendAsync<T>(HttpMethod method, string relativeUrl, object? content = null)
-    {
-        var request = new HttpRequestMessage(method, relativeUrl);
-
-        if (content != null)
-        {
-            request.Content = new StringContent(JsonSerializer.Serialize(content, InputJsonSerializerOptions),
-                Encoding.UTF8, "application/json");
-        }
-
-        var response = await httpClient.SendAsync(request);
-        response.EnsureSuccessStatusCode();
-
-        return await ReadResponseAsync<T>(response);
-    }
-
-    private static async Task<T> ReadResponseAsync<T>(HttpResponseMessage response) =>
-        JsonSerializer.Deserialize<T>(await response.Content.ReadAsStringAsync(), InputJsonSerializerOptions);
 }

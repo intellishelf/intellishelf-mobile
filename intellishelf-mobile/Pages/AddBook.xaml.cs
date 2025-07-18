@@ -1,4 +1,5 @@
 using Foundation;
+using Intellishelf.Clients;
 using Intellishelf.Models.Books;
 using Intellishelf.Services;
 using UIKit;

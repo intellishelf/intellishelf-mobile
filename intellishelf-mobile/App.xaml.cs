@@ -5,18 +5,18 @@ namespace Intellishelf;
 public partial class App
 {
     private readonly IAuthStorage _tokenService;
+
     public App(IAuthStorage tokenService)
     {
         _tokenService = tokenService;
         InitializeComponent();
     }
 
-    protected override Window CreateWindow(IActivationState? activationState) {
-        var token = _tokenService.GetValidAccessToken();
-
+    protected override Window CreateWindow(IActivationState? activationState)
+    {
         var shell = new AppShell(_tokenService);
 
-        shell.GoToAsync(string.IsNullOrEmpty(token) ? "//Login" : "//Books");
+        shell.GoToAsync(_tokenService.IsAccessTokenValid() ? "//Login" : "//Books");
 
         return new Window(shell);
     }

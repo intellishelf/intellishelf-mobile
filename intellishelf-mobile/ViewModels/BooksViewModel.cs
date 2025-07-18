@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using Intellishelf.Clients;
 using Intellishelf.Models;
 using Intellishelf.Models.Books;
 using Intellishelf.Services;

@@ -6,7 +6,7 @@ public interface IAuthStorage
 {
     string? GetValidAccessToken();
     string? GetRefreshToken();
-    bool IsTokenValid();
+    bool IsAccessTokenValid();
     void StoreToken(AuthResult authToken);
     void ClearTokens();
 }
