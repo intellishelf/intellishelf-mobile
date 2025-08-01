@@ -12,9 +12,28 @@ public partial class AppShell
         _authStorage = authStorage;
     }
 
+    private async void OnBooksClicked(object sender, EventArgs e)
+    {
+        await Current.GoToAsync("//Books");
+        Current.FlyoutIsPresented = false;
+    }
+
+    private async void OnAddBookClicked(object sender, EventArgs e)
+    {
+        await Current.GoToAsync("//AddBook");
+        Current.FlyoutIsPresented = false;
+    }
+
+    private async void OnSettingsClicked(object sender, EventArgs e)
+    {
+        await Current.GoToAsync("//Settings");
+        Current.FlyoutIsPresented = false;
+    }
+
     private async void OnSignOutClicked(object sender, EventArgs e)
     {
         _authStorage.ClearTokens();
-        await Shell.Current.GoToAsync("//Login");
+        await Current.GoToAsync("//Login");
+        Current.FlyoutIsPresented = false;
     }
 }

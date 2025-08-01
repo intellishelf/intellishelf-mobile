@@ -54,17 +54,8 @@ public partial class Books : ContentPage, INotifyPropertyChanged
         // Set up collection view
         BooksCollection.ItemsSource = BooksList;
         
-        UpdatePageLabels();
     }
 
-    private void UpdatePageLabels()
-    {
-        MainThread.BeginInvokeOnMainThread(() =>
-        {
-            CurrentPageLabel.Text = $"Page {_currentPage}";
-            TotalPagesLabel.Text = _totalPages.ToString();
-        });
-    }
 
     private void UpdateLoadingState(bool isBusy)
     {
@@ -115,7 +106,6 @@ public partial class Books : ContentPage, INotifyPropertyChanged
         BooksList.Clear();
         _currentPage = 0;
         _totalPages = 0;
-        UpdatePageLabels();
         
         await LoadBooksAsync();
     }
@@ -160,8 +150,7 @@ public partial class Books : ContentPage, INotifyPropertyChanged
 
             _currentPage = result.Page;
             _totalPages = result.TotalPages;
-            UpdatePageLabels();
-        }
+            }
 
         UpdateLoadingState(false);
     }

@@ -45,4 +45,17 @@
       <EmbeddedResource Include="appsettings.json" />
     </ItemGroup>
 
+    <ItemGroup>
+      <MauiXaml Update="Pages\Settings.xaml">
+        <SubType>Designer</SubType>
+      </MauiXaml>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Pages\Settings.xaml.cs">
+        <DependentUpon>Settings.xaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+    </ItemGroup>
+
 </Project>

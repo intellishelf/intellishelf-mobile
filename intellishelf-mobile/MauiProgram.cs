@@ -70,22 +70,6 @@ public static class MauiProgram
 
         var app = builder.Build();
 
-        // Set up safe global exception handling
-        var logger = app.Services.GetService<ILoggerFactory>()?.CreateLogger("GlobalExceptionHandler");
-        SetupGlobalExceptionHandling(logger);
-
         return app;
-    }
-
-    private static void SetupGlobalExceptionHandling(ILogger logger)
-    {
-        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
-        {
-            if (e.ExceptionObject is UnauthorizedAccessException )
-            {
-                MainThread.BeginInvokeOnMainThread(() => { Shell.Current.GoToAsync("//Login"); });
-            }
-            logger.LogError(e.ExceptionObject as Exception, "Unhandled exception occurred");
-        };
     }
 }

@@ -4,7 +4,7 @@
              x:Class="Intellishelf.Pages.Books"
              x:Name="BooksPage">
 
-    <Grid RowDefinitions="Auto,Auto,*">
+    <Grid RowDefinitions="Auto,*">
         <!-- Sorting Controls -->
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="10">
             <Picker Title="Order By" 
@@ -19,15 +19,8 @@
                          CheckedChanged="OnAscendingChanged" />
             </HorizontalStackLayout>
         </Grid>
-        
-        <!-- Status Information -->
-        <HorizontalStackLayout Grid.Row="1" Margin="10,0,10,5" Spacing="10">
-            <Label x:Name="CurrentPageLabel" />
-            <Label Text="of" />
-            <Label x:Name="TotalPagesLabel" />
-        </HorizontalStackLayout>
 
-        <RefreshView Grid.Row="2"
+        <RefreshView Grid.Row="1"
                      x:Name="BooksRefreshView"
                      Refreshing="OnRefreshRequested">
             <CollectionView x:Name="BooksCollection"

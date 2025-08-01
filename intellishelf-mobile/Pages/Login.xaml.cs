@@ -27,10 +27,18 @@ public partial class Login
             return;
         }
 
-        var token = await _authClient.LoginAsync(new UserCredentials(email, password));
+        try
+        {
+            var token = await _authClient.LoginAsync(new UserCredentials(email, password));
 
-        _tokenService.StoreToken(token);
+            _tokenService.StoreToken(token);
 
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception);
+            throw;
+        }
         ErrorLabel.IsVisible = false;
         EmailEntry.Text = "";
         PasswordEntry.Text = "";

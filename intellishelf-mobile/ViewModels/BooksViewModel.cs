@@ -12,7 +12,7 @@ public class BooksViewModel : BindableObject
     private readonly IIntellishelfApiClient _client;
     private readonly IAuthStorage _tokenService;
 
-    public ObservableCollection<Book> Books { get; } = new ObservableCollection<Book>();
+    public ObservableCollection<Book> Books { get; } = [];
 
     private int _currentPage = 0;
     public int CurrentPage

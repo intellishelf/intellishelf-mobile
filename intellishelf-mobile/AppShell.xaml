@@ -8,19 +8,59 @@
     Title="Intellishelf">
 
     <ShellContent Title="Login" Route="Login" ContentTemplate="{DataTemplate pages:Login}" />
-
-    <TabBar>
-        <ShellContent Title="Books" Route="Books" ContentTemplate="{DataTemplate pages:Books}" />
-        <ShellContent Title="Add" Route="AddBook" ContentTemplate="{DataTemplate pages:AddBook}" />
-    </TabBar>
+    <ShellContent Title="Books" Route="Books" ContentTemplate="{DataTemplate pages:Books}" />
+    <ShellContent Title="Add Book" Route="AddBook" ContentTemplate="{DataTemplate pages:AddBook}" />
+    <ShellContent Title="Settings" Route="Settings" ContentTemplate="{DataTemplate pages:Settings}" />
     
     <Shell.FlyoutContent>
-        <StackLayout>
-            <Button Text="Sign Out" 
-                    x:Name="SignOutButton"
-                    Clicked="OnSignOutClicked"
-                    Margin="20" />
-        </StackLayout>
+        <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="WhiteSmoke" Offset="0.3" />
+                    <GradientStop Color="Grey" Offset="0.8" />
+                </LinearGradientBrush>
+            </Grid.Background>
+            <!-- Header -->
+            <Label Grid.Row="0" 
+                   Text="intellishelf"
+                   FontSize="24" 
+                   FontAttributes="Bold" 
+                   HorizontalOptions="Center" 
+                   Margin="0,20,0,30" />
+            
+            <!-- Navigation Buttons -->
+            <StackLayout Grid.Row="1" Spacing="10" VerticalOptions="Start">
+                    <Button Text="Books"
+                            x:Name="BooksButton"
+                            Clicked="OnBooksClicked"
+                            BackgroundColor="Black"
+                            TextColor="White"
+                            HorizontalOptions="FillAndExpand" />
+
+                    <Button Text="Add Book"
+                            x:Name="AddBookButton"
+                            Clicked="OnAddBookClicked"
+                            BackgroundColor="Black"
+                            TextColor="White"
+                            HorizontalOptions="FillAndExpand" />
+            </StackLayout>
+
+            <!-- Bottom Buttons -->
+            <StackLayout Grid.Row="2" Spacing="10" VerticalOptions="End">
+                <Button Text="Settings"
+                        Clicked="OnSettingsClicked"
+                        BackgroundColor="Black"
+                        TextColor="White"
+                        HorizontalOptions="FillAndExpand" />
+                        
+                <Button Text="Sign Out "
+                        x:Name="SignOutButton"
+                        Clicked="OnSignOutClicked"
+                        BackgroundColor="Grey"
+                        TextColor="White"
+                        HorizontalOptions="FillAndExpand" />
+            </StackLayout>
+        </Grid>
     </Shell.FlyoutContent>
 
 </Shell>
