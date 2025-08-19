@@ -1,30 +1,27 @@
 using System.Net.Http.Headers;
+using Intellishelf.Common.TryResult;
 using Intellishelf.Models;
 using Intellishelf.Models.Books;
 
-namespace Intellishelf.Clients;
+namespace Intellishelf.Clients.Implementation;
 
 public class IntellishelfApiClient(HttpClient httpClient)
     : IntellishelfBaseClient(httpClient), IIntellishelfApiClient
 {
-    private readonly HttpClient _httpClient = httpClient;
-
-    public async Task<PagedResult<Book>> GetBooksPagedAsync(
+    public async Task<TryResult<PagedResult<Book>>> GetBooksPagedAsync(
         int page,
         int pageSize,
         BookOrderBy orderBy = BookOrderBy.Added,
         bool ascending = true)
     {
-        var queryString = $"books?page={page}&pageSize={pageSize}&orderBy={orderBy}&ascending={ascending}";
+        var queryString = $"/books?page={page}&pageSize={pageSize}&orderBy={orderBy}&ascending={ascending}";
         return await SendAsync<PagedResult<Book>>(HttpMethod.Get, queryString);
     }
 
-    public async Task<Book> ParseBookFromTextAsync(string text) =>
-        await SendAsync<Book>(HttpMethod.Post, "books/parse-text", new { text });
+    public async Task<TryResult<Book>> ParseBookFromTextAsync(string text) =>
+        await SendAsync<Book>(HttpMethod.Post, "/books/parse-text", new { text });
 
-
-
-    public async Task AddBook(Book book)
+    public async Task<TryResult> AddBook(Book book)
     {
         using var formData = new MultipartFormDataContent();
 
@@ -41,14 +38,12 @@ public class IntellishelfApiClient(HttpClient httpClient)
             }
 
             var imageContent = new StreamContent(book.CoverImage);
-
             imageContent.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
-
             formData.Add(imageContent, "ImageFile", "cover.jpg");
         }
 
-        var response = await _httpClient.PostAsync("books", formData);
+        await SendAsync<Book>(HttpMethod.Post, "/books", formData);
 
-        response.EnsureSuccessStatusCode();
+        return TryResult.Success();
     }
 }

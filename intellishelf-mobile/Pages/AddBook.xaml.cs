@@ -70,7 +70,7 @@ public partial class AddBook
     {
         var parsedText = await ExtractTextAsync(filePath);
 
-        var book = await _client.ParseBookFromTextAsync(parsedText);
+        var book = (await _client.ParseBookFromTextAsync(parsedText)).Value;
 
         Title.Text = book.Title;
         Authors.Text = book.Authors;

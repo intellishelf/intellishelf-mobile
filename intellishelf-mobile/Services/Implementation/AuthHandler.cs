@@ -1,6 +1,6 @@
 using System.Net.Http.Headers;
 using Intellishelf.Clients;
-using Intellishelf.Infra;
+using Intellishelf.Common;
 
 namespace Intellishelf.Services.Implementation;
 
@@ -20,12 +20,19 @@ public class AuthHandler(IAuthStorage tokenService, IIntellishelfAuthClient auth
             {
                 var refreshResult = await authClient.RefreshAsync(tokenService.GetRefreshToken());
 
-                tokenService.StoreToken(refreshResult);
+                if (refreshResult.IsSuccess)
+                {
+                    tokenService.StoreToken(refreshResult.Value);
+                }
+                else
+                {
+                    tokenService.ClearTokens();
+                    throw new UserSessionExpiredException();
+                }
             }
             catch (Exception)
             {
                 tokenService.ClearTokens();
-
                 throw new UserSessionExpiredException();
             }
             finally

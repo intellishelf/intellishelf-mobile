@@ -1,9 +1,10 @@
+using Intellishelf.Common.TryResult;
 using Intellishelf.Models.Auth;
 
 namespace Intellishelf.Clients;
 
 public interface IIntellishelfAuthClient
 {
-    Task<AuthResult> LoginAsync(UserCredentials userCredentials);
-    Task<AuthResult> RefreshAsync(string refreshToken);
+    Task<TryResult<AuthResult>> LoginAsync(UserCredentials userCredentials);
+    Task<TryResult<AuthResult>> RefreshAsync(string refreshToken);
 }

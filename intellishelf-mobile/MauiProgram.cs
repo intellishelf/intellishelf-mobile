@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
+using CommunityToolkit.Maui;
 using Intellishelf.Clients;
-using Intellishelf.Infra;
+using Intellishelf.Clients.Implementation;
+using Intellishelf.Common;
 using Intellishelf.Services;
 using Intellishelf.Services.Implementation;
 using Microsoft.Extensions.Configuration;
@@ -17,6 +19,7 @@ public static class MauiProgram
 
         builder
             .UseMauiApp<App>()
+            .UseMauiCommunityToolkit()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");

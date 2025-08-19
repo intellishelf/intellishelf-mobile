@@ -149,13 +149,13 @@ public class BooksViewModel : BindableObject
 
         if (result != null)
         {
-            foreach (var book in result.Items)
+            foreach (var book in result.Value.Items)
             {
                 Books.Add(book);
             }
 
-            CurrentPage = result.Page;
-            TotalPages = result.TotalPages;
+            CurrentPage = result.Value.Page;
+            TotalPages = result.Value.TotalPages;
         }
 
         IsBusy = false;

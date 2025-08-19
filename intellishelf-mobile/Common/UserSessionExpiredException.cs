@@ -1,4 +1,4 @@
-namespace Intellishelf.Infra;
+namespace Intellishelf.Common;
 
 public class UserSessionExpiredException : Exception
 {

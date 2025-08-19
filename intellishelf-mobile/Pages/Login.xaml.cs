@@ -1,3 +1,5 @@
+using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
 using Intellishelf.Clients;
 using Intellishelf.Models.Auth;
 using Intellishelf.Services;
@@ -23,26 +25,36 @@ public partial class Login
 
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
         {
-            ErrorLabel.IsVisible = true;
+            ShowError("Please enter both email and password");
             return;
         }
 
-        try
+        var result = await _authClient.LoginAsync(new UserCredentials(email, password));
+
+        if (result.IsSuccess)
         {
-            var token = await _authClient.LoginAsync(new UserCredentials(email, password));
-
-            _tokenService.StoreToken(token);
-
+            _tokenService.StoreToken(result.Value);
+            
+            EmailEntry.Text = "";
+            PasswordEntry.Text = "";
+            
+            await Shell.Current.GoToAsync("//Books");
         }
-        catch (Exception exception)
+        else
         {
-            Console.WriteLine(exception);
-            throw;
+            ShowError(result.Error.Message);
         }
-        ErrorLabel.IsVisible = false;
-        EmailEntry.Text = "";
-        PasswordEntry.Text = "";
+    }
 
-        await Shell.Current.GoToAsync("//Books");
+    private static void ShowError(string message)
+    {
+        var resources = Application.Current.Resources;
+
+        Snackbar.Make(message, visualOptions: new SnackbarOptions
+        {
+            BackgroundColor       = (Color)resources["Magenta"],
+            TextColor             = (Color)resources["White"],
+            ActionButtonTextColor = (Color)resources["White"]
+        }).Show();
     }
 }

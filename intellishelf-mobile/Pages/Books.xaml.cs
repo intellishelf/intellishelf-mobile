@@ -1,17 +1,16 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Intellishelf.Clients;
-using Intellishelf.Infra;
+using Intellishelf.Common;
 using Intellishelf.Models;
 using Intellishelf.Models.Books;
 
 namespace Intellishelf.Pages;
 
-public partial class Books : ContentPage, INotifyPropertyChanged
+public partial class Books : INotifyPropertyChanged
 {
     private readonly IIntellishelfApiClient _client;
 
-    // Collections and state
     public ObservableCollection<Book> BooksList { get; } = [];
     
     private int _currentPage = 0;
@@ -128,11 +127,11 @@ public partial class Books : ContentPage, INotifyPropertyChanged
 
         try
         {
-            result = await _client.GetBooksPagedAsync(
+            result = (await _client.GetBooksPagedAsync(
                 _currentPage + 1,
                 PageSize,
                 _selectedOrder,
-                _isAscending);
+                _isAscending)).Value;
         }
         catch (UserSessionExpiredException e)
         {

@@ -8,9 +8,5 @@
         <Entry x:Name="PasswordEntry" Placeholder="Password" IsPassword="True" />
 
         <Button Text="Login" Clicked="OnLoginClicked" />
-
-        <Label x:Name="ErrorLabel" TextColor="Red" IsVisible="False">
-            Email and password are required.
-        </Label>
     </VerticalStackLayout>
 </ContentPage>

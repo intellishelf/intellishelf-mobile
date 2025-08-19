@@ -1,0 +1,14 @@
+using Intellishelf.Common.TryResult;
+using Intellishelf.Models.Auth;
+
+namespace Intellishelf.Clients.Implementation;
+
+public class IntellishelfAuthClient(HttpClient httpClient)
+    : IntellishelfBaseClient(httpClient), IIntellishelfAuthClient
+{
+    public async Task<TryResult<AuthResult>> LoginAsync(UserCredentials userCredentials) =>
+        await SendAsync<AuthResult>(HttpMethod.Post, "/auth/login", userCredentials);
+
+    public async Task<TryResult<AuthResult>> RefreshAsync(string refreshToken) =>
+        await SendAsync<AuthResult>(HttpMethod.Post, "/auth/refresh", new { refreshToken });
+}
