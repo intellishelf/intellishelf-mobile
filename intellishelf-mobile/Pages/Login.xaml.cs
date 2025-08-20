@@ -3,6 +3,7 @@ using CommunityToolkit.Maui.Core;
 using Intellishelf.Clients;
 using Intellishelf.Models.Auth;
 using Intellishelf.Services;
+using Intellishelf.Services.Implementation;
 
 namespace Intellishelf.Pages;
 
@@ -25,7 +26,7 @@ public partial class Login
 
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
         {
-            ShowError("Please enter both email and password");
+            UiNotifier.ShowError("Please enter both email and password");
             return;
         }
 
@@ -42,19 +43,7 @@ public partial class Login
         }
         else
         {
-            ShowError(result.Error.Message);
+            UiNotifier.ShowError(result.Error.Message);
         }
-    }
-
-    private static void ShowError(string message)
-    {
-        var resources = Application.Current.Resources;
-
-        Snackbar.Make(message, visualOptions: new SnackbarOptions
-        {
-            BackgroundColor       = (Color)resources["Magenta"],
-            TextColor             = (Color)resources["White"],
-            ActionButtonTextColor = (Color)resources["White"]
-        }).Show();
     }
 }

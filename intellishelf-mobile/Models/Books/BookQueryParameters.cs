@@ -1,5 +1,5 @@
 
-namespace Intellishelf.Models;
+namespace Intellishelf.Models.Books;
 
 public enum BookOrderBy
 {

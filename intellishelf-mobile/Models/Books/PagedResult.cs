@@ -1,10 +1,10 @@
 namespace Intellishelf.Models.Books;
 
-public class PagedResult<T>(IReadOnlyCollection<T> items, int totalCount, int page, int pageSize)
+public class PagedResult<T>
 {
-    public IReadOnlyCollection<T> Items { get; } = items;
-    public int TotalCount { get; } = totalCount;
-    public int Page { get; } = page;
-    public int PageSize { get; } = pageSize;
-    public int TotalPages { get; } = (int)Math.Ceiling(totalCount / (double)pageSize);
+    public required IReadOnlyCollection<T> Items { get; init; }
+    public required int TotalCount { get; init; }
+    public required int Page { get; init; }
+    public required int PageSize { get; init; }
+    public required int TotalPages { get; init; }
 }

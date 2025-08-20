@@ -1,20 +1,26 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Intellishelf.Clients;
-using Intellishelf.Models;
 using Intellishelf.Models.Books;
-using Intellishelf.Services;
 
 namespace Intellishelf.ViewModels;
 
 public class BooksViewModel : BindableObject
 {
     private readonly IIntellishelfApiClient _client;
-    private readonly IAuthStorage _tokenService;
+
+    public event EventHandler<string>? ErrorOccurred;
 
     public ObservableCollection<Book> Books { get; } = [];
 
-    private int _currentPage = 0;
+    private int _currentPage;
+    private int _totalPages;
+    private int _pageSize = 2;
+    private BookOrderBy _selectedOrder = BookOrderBy.Added;
+    private bool _isAscending = true;
+    private bool _isBusy;
+    private bool _isRefreshing;
+
     public int CurrentPage
     {
         get => _currentPage;
@@ -27,8 +33,7 @@ public class BooksViewModel : BindableObject
             }
         }
     }
-    
-    private int _totalPages = 0;
+
     public int TotalPages
     {
         get => _totalPages;
@@ -41,8 +46,7 @@ public class BooksViewModel : BindableObject
             }
         }
     }
-    
-    private int _pageSize = 20;
+
     public int PageSize
     {
         get => _pageSize;
@@ -55,8 +59,7 @@ public class BooksViewModel : BindableObject
             }
         }
     }
-    
-    private BookOrderBy _selectedOrder = BookOrderBy.Added;
+
     public BookOrderBy SelectedOrder
     {
         get => _selectedOrder;
@@ -66,12 +69,11 @@ public class BooksViewModel : BindableObject
             {
                 _selectedOrder = value;
                 OnPropertyChanged();
-                Task.Run(async () => await ResetAndRefreshAsync());
+                _ = Task.Run(async () => await ResetAndRefreshAsync());
             }
         }
     }
-    
-    private bool _isAscending = true;
+
     public bool IsAscending
     {
         get => _isAscending;
@@ -81,12 +83,11 @@ public class BooksViewModel : BindableObject
             {
                 _isAscending = value;
                 OnPropertyChanged();
-                Task.Run(async () => await ResetAndRefreshAsync());
+                _ = Task.Run(async () => await ResetAndRefreshAsync());
             }
         }
     }
-    
-    private bool _isBusy;
+
     public bool IsBusy
     {
         get => _isBusy;
@@ -96,42 +97,64 @@ public class BooksViewModel : BindableObject
             {
                 _isBusy = value;
                 OnPropertyChanged();
-                ((Command)LoadMoreCommand).ChangeCanExecute();
-                ((Command)RefreshCommand).ChangeCanExecute();
+                LoadMoreCommand.ChangeCanExecute();
+                RefreshCommand.ChangeCanExecute();
             }
         }
     }
-    
-    public ICommand LoadMoreCommand { get; }
-    public ICommand RefreshCommand { get; }
-    
-    public List<BookOrderBy> OrderOptions { get; } = Enum.GetValues(typeof(BookOrderBy)).Cast<BookOrderBy>().ToList();
 
-    public BooksViewModel(IIntellishelfApiClient client, IAuthStorage tokenService)
+    public bool IsRefreshing
+    {
+        get => _isRefreshing;
+        set
+        {
+            if (_isRefreshing != value)
+            {
+                _isRefreshing = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public Command LoadMoreCommand { get; }
+    public Command RefreshCommand { get; }
+
+    public List<BookOrderBy> OrderOptions { get; } =
+        Enum.GetValues(typeof(BookOrderBy)).Cast<BookOrderBy>().ToList();
+
+    public BooksViewModel(IIntellishelfApiClient client)
     {
         _client = client;
-        _tokenService = tokenService;
 
         LoadMoreCommand = new Command(
-            async () => await LoadMoreBooksAsync(),
+            () => _ = Task.Run(async () => await LoadMoreBooksAsync()),
             () => !IsBusy && (TotalPages == 0 || CurrentPage < TotalPages));
 
         RefreshCommand = new Command(
-            async () => await ResetAndRefreshAsync(),
-            () => !IsBusy);
+            () => _ = Task.Run(async () => await ResetAndRefreshAsync()),
+            () => !IsRefreshing);
 
-        // Auto-load books on initialization  
-        _ = LoadMoreBooksAsync();
+        _ = Task.Run(async () => await LoadMoreBooksAsync());
     }
 
     public async Task ResetAndRefreshAsync()
     {
-        if (IsBusy) return;
+        if (IsRefreshing)
+            return;
 
+        IsRefreshing = true;
         Books.Clear();
         CurrentPage = 0;
         TotalPages = 0;
-        await LoadMoreBooksAsync();
+
+        try
+        {
+            await LoadMoreBooksAsync();
+        }
+        finally
+        {
+            IsRefreshing = false;
+        }
     }
 
     public async Task LoadMoreBooksAsync()
@@ -141,23 +164,34 @@ public class BooksViewModel : BindableObject
 
         IsBusy = true;
 
-        var result = await _client.GetBooksPagedAsync(
-            CurrentPage + 1,
-            PageSize,
-            SelectedOrder,
-            IsAscending);
-
-        if (result != null)
+        try
         {
-            foreach (var book in result.Value.Items)
+            var result = await _client.GetBooksPagedAsync(
+                CurrentPage + 1,
+                PageSize,
+                SelectedOrder,
+                IsAscending);
+
+            if (result.IsSuccess)
             {
-                Books.Add(book);
+                foreach (var book in result.Value.Items)
+                    Books.Add(book);
+
+                CurrentPage = result.Value.Page;
+                TotalPages = result.Value.TotalPages;
             }
-
-            CurrentPage = result.Value.Page;
-            TotalPages = result.Value.TotalPages;
+            else
+            {
+                ErrorOccurred?.Invoke(this, result.Error.Message);
+            }
         }
-
-        IsBusy = false;
+        catch (Exception ex)
+        {
+            ErrorOccurred?.Invoke(this, $"Unexpected error: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 }

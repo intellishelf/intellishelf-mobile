@@ -1,5 +1,4 @@
 using Intellishelf.Common.TryResult;
-using Intellishelf.Models;
 using Intellishelf.Models.Books;
 
 namespace Intellishelf.Clients;
